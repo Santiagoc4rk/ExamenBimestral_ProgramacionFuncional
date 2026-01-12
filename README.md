@@ -10,18 +10,26 @@
 
 ---
 
-## 1. Definición del Análisis Exploratorio de Datos (EDA)
+## Objetivo
+Investigar y comprender los conceptos fundamentales del Análisis Exploratorio de Datos (EDA), con un enfoque especial en las fases de limpieza de datos y la integración de herramientas de Inteligencia Artificial para optimizar este proceso.
 
-El **Análisis Exploratorio de Datos (EDA)** es un enfoque analítico fundamental que permite examinar, resumir y visualizar conjuntos de datos para descubrir patrones, detectar anomalías, verificar supuestos y generar hipótesis antes de aplicar técnicas de modelado estadístico formal.
+## Indicaciones
+Responde a los siguientes puntos de manera clara y fundamentada. Utiliza ejemplos prácticos y referencias para apoyar tus respuestas.
 
-### Importancia del EDA
+## Aspectos a Investigar y Desarrollar
+
+### 1. Definición del Análisis Exploratorio de Datos (EDA)
+
+El **Análisis Exploratorio de Datos** (EDA, por sus siglas en inglés) es un enfoque inicial de análisis de datos cuyo objetivo es descubrir patrones, detectar anomalías, probar hipótesis y verificar supuestos a través de resúmenes estadísticos y representaciones gráficas. Se caracteriza por ser un proceso interactivo y visual que ayuda a los analistas a comprender la estructura y las características principales de los datos antes de aplicar modelos predictivos o inferenciales.
+
+#### Importancia del EDA
 
 - Proporciona una comprensión profunda de la estructura y características de los datos
 - Permite identificar problemas de calidad que podrían afectar análisis posteriores
 - Facilita la detección de relaciones entre variables
 - Guía la selección de técnicas analíticas apropiadas
 
-### Ejemplos de su propósito
+#### Ejemplos de su propósito
 
 - **Datos de ventas**: El EDA revelaría patrones estacionales, productos más vendidos y regiones de mayor rendimiento
 - **Datos médicos**: Ayudaría a identificar correlaciones entre síntomas y diagnósticos
@@ -29,7 +37,7 @@ El **Análisis Exploratorio de Datos (EDA)** es un enfoque analítico fundamenta
 
 ---
 
-## 2. Objetivos del EDA
+### 2. Objetivos del EDA
 
 Los principales objetivos del Análisis Exploratorio de Datos son:
 
@@ -47,652 +55,375 @@ Los principales objetivos del Análisis Exploratorio de Datos son:
 
 ---
 
-## 3. Fases del EDA: Enfoque en Limpieza de Datos
+### 3. Fases del EDA: Enfoque en Limpieza de Datos (Hecho con Gemini)
 
-### Flujo General del EDA
+#### Flujo General del EDA
 
-El proceso de EDA típicamente sigue estas etapas:
+El Análisis Exploratorio de Datos (EDA) no es un paso lineal, sino un ciclo iterativo. Sin embargo, su estructura lógica suele seguir estos pasos:
 
-1. **Recolección de datos**
-2. **Limpieza de datos** ⭐ **(FOCO PRINCIPAL)**
-3. **Análisis univariable**
-4. **Análisis bivariable y multivariable**
-5. **Conclusiones y recomendaciones**
+1. **Entendimiento del Negocio y Datos**: Comprender qué significan las variables y qué problema se busca resolver.
 
----
+2. **Carga de Datos**: Importación del dataset desde diversas fuentes (CSV, SQL, API).
 
-### 3.1 Detectar y Manejar Valores Faltantes
+3. **Limpieza de Datos (Data Cleaning)**: El proceso de filtrar, corregir y estandarizar los datos crudos. *(Nuestro foco principal)*
 
-#### ¿Qué son?
-Valores ausentes o nulos (null, None, vacíos) en el dataset que pueden comprometer el análisis.
+4. **Análisis Univariable**: Estudiar cada variable por separado (distribuciones, medias, modas).
 
-#### Estrategias de manejo
+5. **Análisis Bivariable/Multivariable**: Buscar relaciones, correlaciones y patrones entre variables.
 
-**1. Eliminación**
-- Remover filas o columnas con valores faltantes
-- Usar cuando el porcentaje de nulos es bajo (<5%)
-- Filtrar registros que no cumplan validaciones
-
-**2. Imputación Simple**
-- **Media**: Para datos numéricos sin outliers extremos
-- **Mediana**: Para datos con distribución asimétrica
-- **Moda**: Para datos categóricos
-- **Valor por defecto**: Para campos opcionales
-
-**3. Validación con Option**
-- Usar tipos `Option[T]` para campos opcionales
-- Transformar valores inválidos a `None`
-- Aplicar `flatMap` para normalización
-
-#### Ejemplo práctico en Scala
-```scala
-// Validar string no vacío
-def isValidString(s: String): Boolean =
-  s != null && s.trim.nonEmpty && !s.equalsIgnoreCase("null")
-
-// Normalizar texto con Option
-def normalizarTexto(txt: String): Option[String] =
-  val limpio = txt.trim.replaceAll("\\s+", " ")
-  if (limpio.isEmpty) None else Some(limpio)
-
-// Filtrar registros con campos obligatorios válidos
-val peliculasValidas = peliculas.filter { p =>
-  isValidString(p.title) &&
-  isValidString(p.overview) &&
-  p.budget >= 0 &&
-  p.revenue >= 0
-}
-
-// Contar nulos en una columna
-def contarNulos(lista: List[Movie], extractor: Movie => String): Int =
-  lista.count(m => !isValidString(extractor(m)))
-
-val nulosOverview = contarNulos(peliculas, _.overview)
-```
+6. **Comunicación de Hallazgos**: Visualización y reporte de insights.
 
 ---
 
-### 3.2 Eliminar Duplicados
+#### Investigación Detallada: La Fase de Limpieza de Datos
 
-#### Importancia
+La limpieza de datos consume comúnmente entre el 60% y el 80% del tiempo de un proyecto de datos. Su objetivo es garantizar la calidad (integridad, validez, consistencia y precisión) antes de aplicar cualquier modelo estadístico.
 
-Los registros duplicados pueden:
-- Sesgar análisis estadísticos
-- Inflar métricas de conteo
-- Generar correlaciones artificiales
+A continuación, se documenta la ejecución de cada subproceso clave:
 
-#### Proceso de eliminación
+##### A. Detectar y Manejar Valores Faltantes (Missing Values)
 
-1. Identificar duplicados exactos o parciales
-2. Decidir criterios de unicidad (id, combinación de campos)
-3. Mantener primera aparición o la más completa
-4. Documentar número de duplicados eliminados
+Los datos faltantes (NaN, null, None) pueden introducir sesgos severos.
 
-#### Ejemplo práctico en Scala
-```scala
-// Eliminar duplicados por ID
-val peliculasUnicas = peliculas.distinctBy(_.id)
+**Detección:**
 
-// Eliminar duplicados por combinación de campos
-val crewUnico = crewMembers.distinctBy(c => (c.id, c.name, c.job))
+Se utilizan mapas de calor (heatmaps) o conteos sumarios para visualizar la distribución de los datos faltantes. Es vital entender por qué faltan.
 
-// Contar duplicados antes de eliminar
-val totalOriginal = peliculas.size
-val totalUnicas = peliculasUnicas.size
-val duplicados = totalOriginal - totalUnicas
+**Estrategias de Tratamiento:**
 
-println(s"Registros originales: $totalOriginal")
-println(s"Registros únicos: $totalUnicas")
-println(s"Duplicados eliminados: $duplicados")
-```
+**Eliminación (Dropping):**
+- **Filas**: Se eliminan si el registro tiene demasiados campos vacíos y no aporta información.
+- **Columnas**: Se elimina la variable completa si tiene un porcentaje de faltantes muy alto (ej. >50-60%) y no es crítica.
 
----
+**Imputación (Relleno):**
+- **Numérica Simple**: Rellenar con la Media (si la distribución es normal) o la Mediana (si hay sesgos o outliers, ya que es más robusta).
+- **Categórica**: Rellenar con la Moda (el valor más frecuente) o crear una nueva categoría llamada "Desconocido".
+- **Avanzada**: Usar algoritmos como K-Nearest Neighbors (KNN) para estimar el valor basándose en registros similares, o interpolación en series temporales (rellenar con el valor anterior o siguiente).
 
-### 3.3 Corregir Tipos de Datos
+##### B. Eliminar Duplicados
 
-#### Objetivo
-Asegurar que cada campo tenga el tipo de dato correcto para su contenido usando el sistema de tipos de Scala.
+La duplicidad infla las métricas de conteo y sesga las estadísticas descriptivas.
 
-#### Conversiones comunes
+**Importancia de la Unicidad:**
+- Asegura que cada observación sea independiente.
+- Evita el sobreajuste (overfitting) en modelos de Machine Learning, donde el modelo memoriza datos repetidos en lugar de aprender patrones.
 
-- **String a numéricos**: `toInt`, `toDouble` con manejo de excepciones
-- **String a fechas**: Parseo con validación de formato
-- **Valores booleanos**: Validar "True"/"False" o convertir a Boolean
-- **Option types**: Para campos opcionales
+**Ejecución:**
 
-#### Beneficios
+Se debe identificar la "llave primaria" o el conjunto de columnas que definen la unicidad (ej. ID_Cliente + Fecha_Transaccion). Se busca filas idénticas y se mantiene generalmente la primera o la última ocurrencia, eliminando el resto.
 
-- Type safety en tiempo de compilación
-- Previene errores en tiempo de ejecución
-- Permite pattern matching
-- Optimiza operaciones
+##### C. Corregir Tipos de Datos (Casting)
 
-#### Ejemplo práctico en Scala
-```scala
-// Modelo con tipos apropiados
-case class MovieCompleta(
-  adult: String,              // "True" o "False"
-  budget: Double,             // Numérico >= 0
-  id: Double,                 // Identificador único
-  release_date: String,       // Formato: YYYY-MM-DD
-  revenue: Double,            // Numérico >= 0
-  runtime: Double,            // Minutos > 0
-  vote_average: Double,       // 0.0 - 10.0
-  vote_count: Double,         // >= 0
-  title: String,              // Texto obligatorio
-  overview: String            // Texto obligatorio
-)
+Los datos a menudo se cargan con formatos incorrectos (ej. números interpretados como texto "1,000" o fechas como "2023-01-01" en formato string).
 
-// Validar formato de fecha
-def validarFecha(fecha: String): Boolean =
-  fecha.matches("\\d{4}-\\d{2}-\\d{2}")
+**Procesos Comunes:**
+- **Numéricos**: Convertir strings a int o float. Esto a menudo requiere eliminar símbolos de moneda ($, €) o separadores de miles antes de la conversión.
+- **Fechas**: Convertir objetos a datetime. Esto habilita la extracción de características temporales (día de la semana, mes, año, diferencia de tiempo).
+- **Categóricos**: Convertir variables de texto con baja cardinalidad (pocas opciones únicas, como "Sí/No", "Rojo/Verde/Azul") al tipo category. Esto ahorra memoria y acelera el procesamiento.
 
-// Convertir con manejo de errores
-val movieId = try {
-  parts(idIndex).toInt
-} catch {
-  case _: Exception => 0
-}
+##### D. Normalizar y Limpiar Texto
 
-// Validar booleanos
-def validarBoolean(s: String): Boolean =
-  s == "True" || s == "False"
+El texto sucio es una de las mayores fuentes de inconsistencia (ej. "Mexico", "mexico ", "Méxicö").
 
-val peliculasValidas = peliculas.filter { p =>
-  validarFecha(p.release_date) &&
-  validarBoolean(p.adult) &&
-  validarBoolean(p.video)
-}
-```
+**Técnicas de Unificación:**
+- **Casing**: Convertir todo a minúsculas o mayúsculas para que "Data" y "data" sean tratados como iguales.
+- **Trimming**: Eliminar espacios en blanco al inicio y al final (strip), y reducir múltiples espacios internos a uno solo.
+- **Eliminación de caracteres especiales**: Quitar acentos, puntuación o símbolos no alfanuméricos si no son relevantes.
+- **Corrección de Typos**: Usar distancias de edición (como Levenshtein) para agrupar palabras mal escritas con su forma correcta.
+
+##### E. Manejo de Valores Atípicos (Outliers)
+
+Los outliers son puntos de datos que difieren significativamente de otras observaciones. Pueden ser errores de medición o variaciones naturales extremas.
+
+**Identificación:**
+
+- **Método del Rango Intercuartílico (IQR)**: Se define un rango "normal". Los valores fuera de los "bigotes" del diagrama de caja (Boxplot) son candidatos a outliers.
+  - Lim_Inferior = Q1 − 1.5 × IQR
+  - Lim_Superior = Q3 + 1.5 × IQR
+
+- **Z-Score**: Cuántas desviaciones estándar se aleja un punto de la media. Un |Z| > 3 suele considerarse atípico.
+
+**Decisión sobre Tratamiento:**
+- **Eliminar**: Solo si se confirma que es un error de entrada de datos (ej. Edad = 200 años) o un error técnico.
+- **Transformar**: Aplicar logaritmos (log(x)) para reducir el impacto de valores extremos.
+- **Capping (Winsorizing)**: Reemplazar los valores por encima del percentil 99 con el valor del percentil 99.
+- **Conservar**: Si el outlier es real (ej. detección de fraudes), es la información más valiosa y no debe tocarse.
+
+##### F. Renombrar Columnas
+
+Tener nombres de columnas claros facilita la escritura de código y la legibilidad del análisis.
+
+**Estándares de Ejecución:**
+- **Snake Case**: Reemplazar espacios por guiones bajos (ej. Fecha de Venta → fecha_venta).
+- **Eliminar caracteres especiales**: Quitar tildes, paréntesis o signos (%, $) de los nombres.
+- **Significado**: Cambiar nombres crípticos (X01, Var_2) por nombres descriptivos (edad, ingreso_anual).
 
 ---
 
-### 3.4 Normalizar y Limpiar Texto
+### 4. Herramientas del EDA
 
-#### Operaciones de limpieza
+#### Estadística Descriptiva
 
-- **Espacios**: Eliminar espacios iniciales/finales y múltiples
-- **Formato consistente**: Trim, lowercase cuando sea apropiado
-- **Caracteres especiales**: Manejo de comillas, escapado
-- **JSON parsing**: Limpiar strings JSON-like para parseo
+La estadística descriptiva juega un papel fundamental en el EDA, permitiendo resumir y comprender las características principales de los datos.
 
-#### Ejemplo práctico en Scala
-```scala
-// Normalizar texto básico
-def normalizarTexto(txt: String): Option[String] =
-  val limpio = txt.trim.replaceAll("\\s+", " ")
-  if (limpio.isEmpty) None else Some(limpio)
+**Medidas de Tendencia Central:**
+- **Media**: Promedio aritmético de los valores
+- **Mediana**: Valor central que divide los datos en dos mitades iguales
+- **Moda**: Valor que aparece con mayor frecuencia
 
-// Preparar JSON para parseo
-def prepararJSONParaParseo(crew: String): String =
-  if (crew == null || crew.trim.isEmpty) return "[]"
-  crew.trim
-    .replaceAll("None", "null")
-    .replaceAll("True", "true")
-    .replaceAll("False", "false")
-    .replace("\"", "\\\"")
-    .replaceAll("(?<![a-zA-Z0-9])'|'(?![a-zA-Z0-9])", "\"")
+**Medidas de Dispersión:**
+- **Desviación estándar**: Mide la variabilidad de los datos respecto a la media
+- **Varianza**: Cuadrado de la desviación estándar
+- **Rango intercuartílico (IQR)**: Diferencia entre el tercer y primer cuartil
 
-// Normalizar un objeto completo
-def normalizarCrewMember(c: Crew): Crew =
-  c.copy(
-    credit_id = c.credit_id.flatMap(normalizarTexto),
-    department = c.department.flatMap(normalizarTexto),
-    job = c.job.flatMap(normalizarTexto),
-    name = c.name.flatMap(normalizarTexto),
-    profile_path = c.profile_path.flatMap(normalizarTexto)
-  )
+#### Visualizaciones Gráficas
 
-// Aplicar a una lista
-val crewNormalizado = crewList.map(normalizarCrewMember)
-```
+Las visualizaciones son esenciales para identificar patrones y anomalías:
+
+- **Histogramas**: Muestran la distribución de frecuencias de una variable numérica
+- **Diagramas de caja (Boxplots)**: Visualizan la distribución, mediana, cuartiles y outliers
+- **Gráficos de dispersión (Scatter plots)**: Revelan relaciones entre dos variables numéricas
+- **Gráficos de barras**: Comparan valores entre categorías
+- **Matrices de correlación**: Muestran relaciones lineales entre múltiples variables
 
 ---
 
-### 3.5 Manejo de Valores Atípicos (Outliers)
+### 5. Caso Práctico con IA: Dataset de Películas
 
-#### ¿Qué son?
-Observaciones que se desvían significativamente del patrón general de los datos.
+#### Herramientas IA
 
-#### Métodos de detección
+Para este ejercicio se utilizarán herramientas como **Julius AI** y **Gemini** para realizar el análisis exploratorio.
 
-**Rango Intercuartílico (IQR)**
-- Método robusto basado en cuartiles
-- Valores fuera de Q1 - 1.5×IQR y Q3 + 1.5×IQR
-- No asume distribución normal
+#### Dataset
 
-#### Estrategias de tratamiento
+Se utilizará el archivo de datos de **películas (Movies)** disponible en:
+- [Enlace al Dataset (Google Drive)](https://drive.google.com/file/d/1uHvGXxrcULwZM0QiKZeCpu94GGlcHhiG/view?usp=drive_link)
 
-- **Mantener**: Si son valores legítimos (películas blockbuster)
-- **Eliminar**: Si son errores evidentes
-- **Filtrado flexible**: Permitir outliers en algunas variables
-- **Separar**: Analizar outliers independientemente
-
-#### Ejemplo práctico en Scala
-```scala
-// Calcular cuartil
-def calcularCuartil(ordenados: List[Double], percentil: Double): Double =
-  if ordenados.isEmpty then return 0.0
-  val pos = percentil * (ordenados.size - 1)
-  val lower = ordenados(pos.toInt)
-  val upper = if pos.toInt + 1 < ordenados.size 
-              then ordenados(pos.toInt + 1) 
-              else lower
-  val fraction = pos - pos.toInt
-  lower + fraction * (upper - lower)
-
-// Obtener límites IQR
-def obtenerLimitesIQR(datos: List[Double]): (Double, Double) =
-  if datos.isEmpty || datos.size < 4 then (0.0, Double.MaxValue)
-  else
-    val sorted = datos.sorted
-    val q1 = calcularCuartil(sorted, 0.25)
-    val q3 = calcularCuartil(sorted, 0.75)
-    val iqr = q3 - q1
-    val limiteInferior = math.max(0, q1 - 1.5 * iqr)
-    val limiteSuperior = q3 + 1.5 * iqr
-    (limiteInferior, limiteSuperior)
-
-// Aplicar filtro de outliers
-val budgetsNoZero = peliculas.map(_.budget).filter(_ > 0)
-val (limInf, limSup) = obtenerLimitesIQR(budgetsNoZero)
-
-val sinOutliers = peliculas.filter { p =>
-  p.budget == 0 || (p.budget >= limInf && p.budget <= limSup)
-}
-
-// Estrategia flexible: permitir máximo 1 outlier
-val paso2 = paso1.filter { m =>
-  val fueraDeRango = Seq(
-    m.budget > 0 && (m.budget < limInfBudget || m.budget > limSupBudget),
-    m.revenue > 0 && (m.revenue < limInfRev || m.revenue > limSupRev)
-  ).count(identity)
-  
-  fueraDeRango <= 1  // Máximo 1 variable puede ser outlier
-}
-```
+**Columnas disponibles:** `adult`, `belongs_to_collection`, `budget`, `genres`, `homepage`, `id`, `imdb_id`, `original_language`, `original_title`, `overview`, `popularity`, `poster_path`, `production_companies`, `production_countries`, `release_date`, `revenue`, `runtime`, `spoken_languages`, `status`, `tagline`, `title`, `video`, `vote_average`, `vote_count`, `keywords`, `cast`, `crew`, `ratings`.
 
 ---
 
-### 3.6 Renombrar Columnas
+#### Actividad - EDA en 3 Fases (en este ejemplo Gemini lo hizo en Python)
 
-#### Propósitos
+##### Fase 1: Resumen y Limpieza (Vista General) - *Punto Principal*
 
-- Estandarizar nomenclatura (camelCase en Scala)
-- Clarificar significado de campos
-- Consistencia con convenciones del lenguaje
-- Facilitar pattern matching
+**1. Carga y Resumen General**
 
-#### Buenas prácticas en Scala
+Primero, cargamos los datos y generamos una "radiografía" inicial para identificar los problemas.
+```python
+import pandas as pd
+import numpy as np
 
-- Usar camelCase para nombres de campos
-- Nombres descriptivos pero concisos
-- Evitar caracteres especiales
-- Documentar con comentarios
+# Carga del dataset (detectando separador ';')
+try:
+    df = pd.read_csv('pi_movies_small.xlsx - pi_movies_small.csv', sep=';')
+except:
+    df = pd.read_csv('pi_movies_small.xlsx - pi_movies_small.csv')
 
-#### Ejemplo práctico en Scala
-```scala
-// Case class con nombres claros y consistentes
-case class Movie(
-  movieId: Int,           // Antes: id
-  title: String,          // Sin cambios
-  originalTitle: String,  // Antes: original_title
-  releaseDate: String,    // Antes: release_date
-  budget: Double,         // Sin cambios
-  revenue: Double,        // Sin cambios
-  voteAverage: Double,    // Antes: vote_average
-  voteCount: Double,      // Antes: vote_count
-  runtime: Double         // Sin cambios (minutos)
-)
-
-// Transformar datos con nombres actualizados
-def renombrarCampos(old: MovieCompleta): Movie =
-  Movie(
-    movieId = old.id.toInt,
-    title = old.title,
-    originalTitle = old.original_title,
-    releaseDate = old.release_date,
-    budget = old.budget,
-    revenue = old.revenue,
-    voteAverage = old.vote_average,
-    voteCount = old.vote_count,
-    runtime = old.runtime
-  )
+# Resumen General
+print("--- ESTADO INICIAL ---")
+print(f"Dimensiones: {df.shape}")
+print(df.info())
+print("\n--- EJEMPLO DE DATOS CRUDOS ---")
+print(df.head(2))
 ```
+
+**Diagnóstico Inicial:**
+- **Estructura**: El dataset contiene columnas con tipos de datos mezclados (ej. release_date y budget aparecen como objetos o números no estandarizados).
+- **Nulos**: Se detectan valores faltantes en campos como belongs_to_collection y tagline.
+- **Formato**: Columnas de texto pueden tener espacios extra e id es un nombre ambiguo.
+
+**2. Ejecución de los 6 Pasos de Limpieza (Documentación)**
+
+A continuación, se detalla cómo la IA resolvió cada uno de los problemas de calidad solicitados.
+
+**A. Detección y Manejo de Nulos**
+
+Identificamos la cantidad de nulos por columna.
+
+**Estrategia Aplicada:**
+- **Numéricos** (budget, revenue): Se rellenaron los huecos con 0, asumiendo que la falta de dato indica ausencia de presupuesto/ingresos reportados.
+- **Texto** (overview, tagline): Se rellenaron con "Desconocido" o vacíos para no perder la fila.
+- **Críticos** (release_date, title): Si faltan, se eliminan las filas, ya que una película sin fecha ni título no es útil para el análisis temporal.
+```python
+# Conteo de nulos
+null_counts = df.isnull().sum()
+print(f"Nulos encontrados (Top 5):\n{null_counts[null_counts > 0].head(5)}")
+
+# Tratamiento
+df.dropna(subset=['release_date', 'title'], inplace=True) # Eliminar críticos
+df.fillna({'budget': 0, 'revenue': 0, 'overview': ''}, inplace=True) # Imputar
+print("-> Nulos críticos eliminados y valores numéricos imputados con 0.")
+```
+
+**B. Eliminación de Duplicados**
+
+Se busca asegurar que no haya registros idénticos que inflen los resultados.
+
+**Acción:** Se buscaron filas completamente idénticas y se eliminaron.
+```python
+duplicados = df.duplicated().sum()
+print(f"Duplicados encontrados: {duplicados}")
+if duplicados > 0:
+    df.drop_duplicates(inplace=True)
+    print("-> Duplicados eliminados.")
+```
+
+**C. Corrección de Tipos de Datos**
+
+Las columnas críticas no tenían el formato correcto para operar matemáticamente.
+
+**Corrección:**
+- **release_date**: Convertido de texto a objeto datetime (permite extraer año/mes).
+- **budget, revenue, popularity**: Forzados a tipo numérico (float o int). Los errores de conversión se transformaron en NaN y luego en 0.
+```python
+# Conversión
+df['release_date'] = pd.to_datetime(df['release_date'], errors='coerce')
+cols_numericas = ['budget', 'revenue', 'popularity', 'vote_average']
+for col in cols_numericas:
+    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+
+print("-> Fechas y números estandarizados.")
+```
+
+**D. Limpieza de Texto**
+
+El texto suele venir sucio con espacios al inicio/final o mayúsculas inconsistentes.
+
+**Acción:** Se aplicó strip() a todas las columnas de texto para quitar espacios en blanco sobrantes.
+```python
+# Normalización de texto
+df_obj = df.select_dtypes(['object'])
+df[df_obj.columns] = df_obj.apply(lambda x: x.str.strip())
+print("-> Espacios en blanco eliminados de columnas de texto.")
+```
+
+**E. Detección de Outliers (Valores Atípicos)**
+
+Analizamos la columna revenue (ingresos) para ver valores extremos.
+
+**Método:** Rango Intercuartílico (IQR).
+
+**Resultado:** Se identificaron películas con ingresos extremadamente altos (blockbusters) que se salen de la norma estadística habitual. **Nota:** En cine, estos outliers suelen ser datos reales y valiosos, no errores.
+```python
+Q1 = df['revenue'].quantile(0.25)
+Q3 = df['revenue'].quantile(0.75)
+IQR = Q3 - Q1
+outliers = df[(df['revenue'] < (Q1 - 1.5 * IQR)) | (df['revenue'] > (Q3 + 1.5 * IQR))]
+print(f"-> Detectados {len(outliers)} outliers en 'revenue' (probablemente éxitos de taquilla).")
+```
+
+**F. Renombrado de Columnas**
+
+Para evitar conflictos con palabras reservadas (como id en Python) y mejorar la claridad.
+
+**Cambio:** id → movie_id.
+```python
+df.rename(columns={'id': 'movie_id'}, inplace=True)
+print("-> Columna 'id' renombrada a 'movie_id'.")
+```
+
+**Resumen Final del Dataset Limpio**
+```python
+print("\n--- ESTADO FINAL ---")
+print(df.info())
+```
+
+(El output de este código mostraría un DataFrame sin nulos en columnas clave, con fechas tipo datetime64 y columnas numéricas tipo float/int, listo para el EDA visual).
 
 ---
 
-## 4. Herramientas del EDA
+##### Fase 2: Análisis Univariable (Caso de Estudio)
 
-### 4.1 Estadística Descriptiva
+Para este análisis profundo, seleccioné la variable **vote_average** (Promedio de Votos) y **budget** (Presupuesto), ya que ofrecen perspectivas interesantes sobre la calidad percibida y la inversión financiera.
 
-La estadística descriptiva resume y describe las características principales de un conjunto de datos.
+**1. Estadísticas Descriptivas**
 
-#### Medidas de Tendencia Central
+Aquí tienes los datos clave de las variables seleccionadas:
 
-**Media (promedio) - μ**
-- Suma de todos los valores dividida por el número de observaciones
-- Fórmula: `μ = Σx / n`
-- Sensible a valores extremos
-- Útil para distribuciones simétricas
+| Estadística | Budget ($) | Revenue ($) | Vote Average (0-10) | Runtime (min) |
+|-------------|------------|-------------|---------------------|---------------|
+| Conteo      | 95         | 95          | 95                  | 95            |
+| Promedio    | 3.74 M     | 17.3 M      | 5.43                | 98.6          |
+| Mínimo      | 0          | 0           | 0.0                 | 0             |
+| Máximo      | 130 M      | 847 M       | 9.5                 | 360           |
+| Mediana     | 0          | 0           | 6.0                 | 98.0          |
 
-**Mediana**
-- Valor central cuando los datos están ordenados
-- Robusta ante outliers
-- Preferible para distribuciones asimétricas
-- Divide el dataset en dos mitades iguales
+**Interpretación de budget:**
+- La mediana es 0, lo que indica que más del 50% de las películas en esta muestra pequeña no tienen datos de presupuesto registrados (valor 0).
+- Existe una desviación estándar enorme (19.2 M), sugiriendo una variabilidad extrema entre películas independientes de bajo costo y grandes producciones.
 
-**Moda**
-- Valor que aparece con mayor frecuencia
-- Útil para datos categóricos
-- Puede haber múltiples modas (bimodal, multimodal)
+**Interpretación de vote_average:**
+- El promedio es 5.4, lo que sugiere una calidad "media" general en la muestra.
+- El rango va de 0 a 9.5, cubriendo todo el espectro desde películas sin votos o muy malas hasta obras maestras aclamadas.
 
-#### Medidas de Dispersión
+**2. Gráficos de Distribución**
 
-**Desviación Estándar - σ**
-- Mide la dispersión promedio respecto a la media
-- Fórmula: `σ = √[Σ(x - μ)² / n]`
-- Mismas unidades que los datos originales
-- Valores altos indican mayor variabilidad
+![Histograma y diagrama de caja de Vote Average](https://github.com/user-attachments/assets/da8d77e7-093c-4a01-9601-2b322e7508be)
 
-**Varianza - σ²**
-- Promedio de las desviaciones cuadradas respecto a la media
-- Fórmula: `σ² = Σ(x - μ)² / n`
-- Unidades al cuadrado
+![Histograma y diagrama de caja de Budget](https://github.com/user-attachments/assets/37caa441-7b9c-4f0a-851d-3e43a4a2dda8)
 
-**Rango Intercuartílico (IQR)**
-- Diferencia entre el tercer y primer cuartil (Q3 - Q1)
-- Contiene el 50% central de los datos
-- Robusto ante valores extremos
+**Interpretación de los gráficos:**
 
-#### Ejemplo de cálculo en Scala
-```scala
-// Calcular estadísticas descriptivas
-def calcularEstadisticas(datos: List[Double]): Map[String, Double] =
-  if datos.isEmpty then Map.empty
-  else
-    val ordenados = datos.sorted
-    val n = ordenados.size
-    val media = datos.sum / n
-    val varianza = datos.map(x => math.pow(x - media, 2)).sum / n
-    val mediana = if n % 2 == 1 then ordenados(n / 2)
-                  else (ordenados(n / 2 - 1) + ordenados(n / 2)) / 2.0
-    
-    Map(
-      "min" -> ordenados.head,
-      "max" -> ordenados.last,
-      "media" -> media,
-      "mediana" -> mediana,
-      "desv_std" -> math.sqrt(varianza),
-      "q1" -> calcularCuartil(ordenados, 0.25),
-      "q3" -> calcularCuartil(ordenados, 0.75)
-    )
+- **Gráfico de barras (Histograma)**: Muestra cómo se distribuyen los valores de la variable. Por ejemplo, podemos ver cuántas películas tienen calificaciones entre 5-6, 6-7, etc.
 
-// Usar las estadísticas
-val statsRevenue = calcularEstadisticas(peliculas.map(_.revenue).filter(_ > 0))
-println(s"Media: ${statsRevenue("media")}")
-println(s"Mediana: ${statsRevenue("mediana")}")
-println(s"Desv. Std: ${statsRevenue("desv_std")}")
-```
+- **Gráfico de cajas**: Muestra visualmente el valor mínimo, el 25% de los datos (Q1), la mediana (línea central), el 75% de los datos (Q3) y el valor máximo. Los puntos fuera de las "cajas" son los valores atípicos.
 
 ---
 
-### 4.2 Visualización Gráfica
+##### Fase 3: Análisis Bivariable / Multivariable (Relaciones)
 
-#### Histogramas
-- Muestran distribución de frecuencias
-- Revelan forma de la distribución (normal, asimétrica)
-- Permiten identificar modas múltiples
-- Útiles para variables numéricas continuas
+Exploramos cómo se relacionan estas variables entre sí.
 
-#### Diagramas de Caja (Boxplots)
-- Resumen cinco estadísticas clave (mín, Q1, mediana, Q3, máx)
-- Visualizan outliers claramente
-- Permiten comparar distribuciones entre grupos
-- Compactos y eficientes
+**1. Matriz y grafico de Correlación**
 
-#### Gráficos de Dispersión (Scatter plots)
-- Muestran relación entre dos variables numéricas
-- Revelan correlaciones y patrones
-- Identifican clusters y outliers bivariables
-- Base para análisis de regresión
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/b2fbc5a1-0279-4de2-a569-b0e1c480d00d" />
 
-#### Gráficos de Barras
-- Representan frecuencias de categorías
-- Comparan magnitudes entre grupos
-- Útiles para variables categóricas
 
----
+Calculé la correlación de Pearson para entender la fuerza de las relaciones lineales:
 
-## 5. Caso Práctico con IA: Dataset de Películas
+| Relación | Correlación (r) | Interpretación |
+|----------|-----------------|----------------|
+| Budget vs Revenue | 0.97 | **Correlación Positiva Muy Fuerte**. Como era de esperarse, a mayor inversión, mayor retorno en taquilla (en esta muestra). |
+| Budget vs Popularity | 0.79 | **Correlación Fuerte**. Las películas más caras tienden a ser más populares. |
+| Vote Average vs Popularity | 0.27 | **Correlación Débil**. Que una película sea popular no garantiza que tenga buena calificación, y viceversa. |
+| Runtime vs Vote Average | 0.28 | **Correlación Débil**. La duración no influye determinantemente en la calificación. |
 
-### Dataset de Películas
+**2. Gráficos de dispersión**
 
-**Columnas disponibles (28 campos):**
-```
-adult, belongs_to_collection, budget, genres, homepage, id, imdb_id, 
-original_language, original_title, overview, popularity, poster_path, 
-production_companies, production_countries, release_date, revenue, 
-runtime, spoken_languages, status, tagline, title, video, 
-vote_average, vote_count, keywords, cast, crew, ratings
-```
+![Gráfico de dispersión Budget vs Revenue](https://github.com/user-attachments/assets/3f4675d4-6ea5-4f26-853d-2a189c5d0999)
+
+![Gráfico de dispersión Vote Average vs Popularity](https://github.com/user-attachments/assets/b4a3ad5f-1a21-4dda-9483-567cdb7644c3)
+
+**Interpretación de los gráficos:**
+
+- **Gráfico de Dispersión (Budget vs Revenue)**: Muestra una línea de tendencia clara ascendente. Las películas que gastan más, ganan más. Sin embargo, hay muchos puntos acumulados en la esquina inferior izquierda (0,0), lo que corresponde a las películas sin datos financieros registrados.
+
+- **Gráfico de Dispersión (Vote Average vs Popularity)**: Es una nube de puntos más dispersa. Se observa que las películas con muy baja calificación (cerca de 0) tienen popularidad nula. A medida que aumenta el vote_average hacia 6-8, la popularidad varía enormemente, confirmando que una buena película no siempre es "famosa".
+
+**Conclusión del Caso de Estudio:**
+
+El análisis revela que, aunque el dinero (budget) es un excelente predictor del éxito comercial (revenue) y la visibilidad (popularity), no garantiza la calidad (vote_average). La calidad, medida por los votos, es una variable mucho más independiente que no se compra necesariamente con presupuesto.
 
 ---
 
-### Fase 1: Resumen y Limpieza (Vista General) ⭐ **PUNTO PRINCIPAL**
 
-#### Herramientas recomendadas
-- **Julius AI** (https://julius.ai)
-- **Google Gemini** (https://gemini.google.com)
-- **ChatGPT** con análisis de datos
+### 6. Referencias
 
-#### Prompt sugerido para la IA
-```
-He cargado el dataset de películas "pi_movies_complete.csv" con 28 columnas:
-adult, belongs_to_collection, budget, genres, homepage, id, imdb_id, 
-original_language, original_title, overview, popularity, poster_path, 
-production_companies, production_countries, release_date, revenue, 
-runtime, spoken_languages, status, tagline, title, video, 
-vote_average, vote_count, keywords, cast, crew, ratings.
+Client challenge. (s. f.). *MODULO EDA 2.0*. Scribd. https://es.scribd.com/document/58974067/MODULO-EDA-2-0
 
-Por favor, realiza un análisis exploratorio completo siguiendo estos pasos:
+Guía práctica de introducción al análisis exploratorio de datos en R. (s. f.). *datos.gob.es*. 
 
-**PASO 1: RESUMEN GENERAL**
-- Muestra las dimensiones del dataset (filas x columnas)
-- Lista los tipos de datos de cada columna
-- Muestra las primeras 5 filas del dataset
-- Genera un resumen estadístico (describe)
+    https://datos.gob.es/es/conocimiento/guia-practica-de-introduccion-al-analisis-exploratorio-de-datos-en-r
 
-**PASO 2: DETECCIÓN DE VALORES NULOS**
-- Cuenta valores nulos por columna
-- Calcula el porcentaje de nulos para cada campo
-- Identifica cuáles son campos obligatorios vs opcionales
-- Sugiere estrategias de imputación o eliminación
+Telang, P. (2024, 15 de octubre). What is EDA? Importance, types & tools of exploratory data analysis. 
 
-**PASO 3: ELIMINACIÓN DE DUPLICADOS**
-- Busca registros duplicados por ID
-- Identifica duplicados completos (todas las columnas)
-- Reporta cuántos duplicados fueron encontrados
-- Muestra ejemplos de duplicados si los hay
-
-**PASO 4: CORRECCIÓN DE TIPOS DE DATOS**
-- Verifica que budget, revenue, runtime sean numéricos
-- Convierte release_date a formato fecha
-- Valida que adult y video sean booleanos
-- Identifica valores inválidos en cada campo
-
-**PASO 5: LIMPIEZA DE TEXTO**
-- Elimina espacios extra en title, original_title, overview
-- Normaliza formato de campos de texto
-- Identifica caracteres especiales o encoding incorrecto
-- Muestra ejemplos antes/después de limpieza
-
-**PASO 6: DETECCIÓN DE OUTLIERS**
-- Usa método IQR para: budget, revenue, runtime, popularity
-- Calcula límites inferior y superior para cada variable
-- Cuenta cuántos outliers hay en cada campo
-- Muestra los 5 valores más extremos de cada variable
-- Sugiere si mantener o eliminar outliers
-
-Documenta cada paso con:
-- Estadísticas ANTES de la limpieza
-- Operaciones realizadas
-- Estadísticas DESPUÉS de la limpieza
-- Número de registros afectados
-```
-
-#### Entregables de la Fase 1
-
-📊 **Documentar obligatoriamente cada uno de los 6 pasos:**
-
-**1. Resumen General**
-```
-Total de registros: X,XXX
-Total de columnas: 28
-Primeras 5 filas: [Captura de pantalla]
-Tipos de datos: [Tabla con cada columna y su tipo]
-```
-
-**2. Valores Nulos**
-```
-Columna              | Nulos | Porcentaje | Estrategia
----------------------|-------|------------|------------------
-title                |     X |      X.X%  | Eliminar registro
-overview             |    XX |      X.X%  | Eliminar registro
-budget               |   XXX |     XX.X%  | Mantener 0
-revenue              |   XXX |     XX.X%  | Mantener 0
-homepage             | X,XXX |     XX.X%  | Mantener vacío
-...
-```
-
-**3. Duplicados**
-```
-Duplicados por ID: X registros
-Duplicados completos: X registros
-Acción tomada: [Descripción]
-Registros finales: X,XXX
-```
-
-**4. Tipos de Datos**
-```
-Campo            | Tipo Original | Tipo Correcto | Valores Inválidos
------------------|---------------|---------------|------------------
-budget           | object        | float64       | X registros
-revenue          | object        | float64       | X registros
-release_date     | object        | datetime64    | X registros
-adult            | object        | bool          | X registros
-...
-```
-
-**5. Limpieza de Texto**
-```
-Ejemplos de limpieza en 'title':
-ANTES: "  The Matrix   "
-DESPUÉS: "The Matrix"
-
-ANTES: "Star  Wars:  Episode  IV"
-DESPUÉS: "Star Wars: Episode IV"
-
-Total de registros limpiados: X,XXX
-```
-
-**6. Outliers Detectados**
-```
-Variable    | Q1      | Q3        | IQR       | Lím. Inf | Lím. Sup | Outliers
-------------|---------|-----------|-----------|----------|----------|----------
-budget      | XX.XXM  | XXX.XXM   | XX.XXM    | 0        | XXX.XXM  | XXX
-revenue     | XX.XXM  | XXX.XXM   | XX.XXM    | 0        | X.XXB    | XXX
-runtime     | XX min  | XXX min   | XX min    | XX min   | XXX min  | XX
-popularity  | X.XX    | XX.XX     | XX.XX     | 0        | XXX.XX   | XXX
-
-Decisión: Mantener outliers en budget y revenue (blockbusters legítimos)
-          Eliminar outliers en runtime (errores de datos)
-```
-
-**💡 IMPORTANTE: Incluir capturas de pantalla de la IA ejecutando cada paso**
-
+    *Business Analyst - TechCanvas*. https://businessanalyst.techcanvass.com/what-is-exploratory-data-analysis/
 ---
 
-### Fase 2: Análisis Univariable (Caso de Estudio)
+## Formato de Entrega
 
-#### Variable seleccionada: `revenue` (Ingresos de la película)
+- **Formato:** Documento tipo Wiki sobre este archivo README.md
+- **Fecha de Entrega:** 18 de diciembre 2025.
+- **Evaluación:** Se priorizará la calidad y detalle en la **Fase 1 (Limpieza)**, la correcta ejecución del caso de estudio univariable y la evidencia del uso de IA.
 
-#### Prompt para la IA
-```
-ANÁLISIS UNIVARIABLE PROFUNDO DE LA VARIABLE 'revenue'
-
-Realiza un análisis estadístico y visual completo de la variable revenue 
-(ingresos de películas) siguiendo estos pasos:
-
-**1. ESTADÍSTICAS DESCRIPTIVAS COMPLETAS**
-- Cuenta total de registros
-- Valores faltantes o cero
-- Mínimo, Máximo, Rango
-- Media (promedio)
-- Mediana
-- Moda (si aplica)
-- Cuartiles (Q1, Q2/Mediana, Q3)
-- Rango Intercuartílico (IQR)
-- Desviación estándar
-- Varianza
-- Coeficiente de variación
-
-**2. ANÁLISIS DE DISTRIBUCIÓN**
-- Asimetría (skewness): ¿La distribución está sesgada?
-- Curtosis: ¿Hay colas pesadas o ligeras?
-- ¿Porcentaje de películas con revenue = 0?
-- ¿Cuántas películas superan 100M, 500M, 1B?
-
-**3. VISUALIZACIONES REQUERIDAS**
-a) Histograma con 30-50 bins
-   - Incluir líneas verticales para media y mediana
-   - Etiquetar ejes claramente
-   
-b) Boxplot horizontal
-   - Identificar outliers visualmente
-   - Mostrar Q1, Q2, Q3
-   
-c) Histograma con escala logarítmica (si hay muchos ceros)
-   - Para visualizar mejor la distribución
-
-d) Tabla de frecuencias por rangos
-   - 0 - 10M, 10M - 50M, 50M - 100M, 100M - 500M, 500M+
-
-**4. INTERPRETACIÓN**
-Responde:
-- ¿La distribución es normal, asimétrica positiva o negativa?
-- ¿Qué porcentaje de películas tienen ingresos bajos (<10M)?
-- ¿Cuáles son las películas con mayores ingresos (top 10)?
-- ¿Hay necesidad de transformación logarítmica?
-- ¿Qué insights se pueden extraer sobre el éxito comercial?
-
-**5. VALORES EXTREMOS**
-- Lista los 10 valores más altos
-- Lista los 10 valores más bajos (excluyendo 0)
-- ¿Los outliers son errores o blockbusters legítimos?
-```
-
-#### Interpretación esperada
-
-La variable `revenue` típicamente presenta:
-
-- **Distribución altamente asimétrica positiva** (skewed right)
-- Mayoría de películas con ingresos bajos a moderados
-- Pocas películas "blockbusters" con ingresos extraordinariamente altos
-- Presencia de muchos ceros (películas sin información de ingresos)
-- **Mediana significativamente menor que la media** debido a outliers
-- Necesidad potencial de transformación logarítmica para normalizar
-
-#### Entregables de la Fase 2
-
-- Tabla completa de estadísticas descriptivas
-- Histograma de distribución con interpretación
-- Boxplot identificando outliers
-- Análisis escrito de la distribución observada
-- Recomendaciones para tratamiento de la variable
-
----
-
-### Fase 3: Análisis Bivariable/Multivariable (Relaciones)
-
-#### Prompt para la IA
